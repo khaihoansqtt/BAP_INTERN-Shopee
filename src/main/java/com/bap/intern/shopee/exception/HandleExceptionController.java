@@ -9,10 +9,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import com.bap.intern.shopee.dto.BaseRes;
 import com.bap.intern.shopee.exception.customException.CategoryNotExistedException;
 import com.bap.intern.shopee.exception.customException.ExistedEmailException;
+import com.bap.intern.shopee.exception.customException.ImportProductFromFileException;
 import com.bap.intern.shopee.exception.customException.ProductNotExistedException;
-import com.bap.intern.shopee.exception.customException.ServerException;
 import com.bap.intern.shopee.exception.customException.UnauthenticatedException;
 import com.bap.intern.shopee.exception.customException.UserException;
+
+import io.jsonwebtoken.io.IOException;
 
 @ControllerAdvice
 @Order(2)
@@ -37,21 +39,21 @@ public class HandleExceptionController {
 		return new ResponseEntity<BaseRes>(res, HttpStatus.BAD_REQUEST);
 	}
 
-	// Xử lý lỗi do server
-//	@ExceptionHandler
-//	public ResponseEntity<CommonRes> handleServerException(ServerException e) {
-//		CommonRes res = new CommonRes();
-//		res.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-//		res.setMessage(e.getMessage());
-//		return new ResponseEntity<CommonRes>(res, HttpStatus.INTERNAL_SERVER_ERROR);
-//	}
+	// Xử lý lỗi ImportProductFromFile
+	@ExceptionHandler({ImportProductFromFileException.class})
+	public ResponseEntity<BaseRes> handleServerException(IOException e) {
+		BaseRes res = new BaseRes();
+		res.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+		res.setMessage(e.getMessage());
+		return new ResponseEntity<BaseRes>(res, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
 	
-	// Xử lý lỗi chung
-//	@ExceptionHandler
-//	public ResponseEntity<CommonRes> handleGeneralException(Exception e) {
-//		CommonRes res = new CommonRes();
-//		res.setStatus(HttpStatus.BAD_REQUEST.value());
-//		res.setMessage(e.getMessage());
-//		return new ResponseEntity<CommonRes>(res, HttpStatus.BAD_REQUEST);
-//	}
+//	 Xử lý lỗi chung
+	@ExceptionHandler
+	public ResponseEntity<BaseRes> handleGeneralException(Exception e) {
+		BaseRes res = new BaseRes();
+		res.setStatus(HttpStatus.BAD_REQUEST.value());
+		res.setMessage(e.getMessage());
+		return new ResponseEntity<BaseRes>(res, HttpStatus.BAD_REQUEST);
+	}
 }

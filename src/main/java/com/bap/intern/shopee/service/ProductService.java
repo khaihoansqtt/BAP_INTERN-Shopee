@@ -24,7 +24,7 @@ import com.bap.intern.shopee.entity.Category;
 import com.bap.intern.shopee.entity.Product;
 import com.bap.intern.shopee.exception.customException.CategoryNotExistedException;
 import com.bap.intern.shopee.exception.customException.ProductNotExistedException;
-import com.bap.intern.shopee.exception.customException.ServerException;
+import com.bap.intern.shopee.exception.customException.ImportProductFromFileException;
 import com.bap.intern.shopee.repository.CategoryRepository;
 import com.bap.intern.shopee.repository.ProductRepository;
 
@@ -102,7 +102,7 @@ public class ProductService {
 	        workbook.close();
 	        inputStream.close();
 		} catch (IOException e) {
-			throw new ServerException();
+			throw new ImportProductFromFileException(e.getMessage());
 		}
 	}
 	
