@@ -7,17 +7,17 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class CommonRes {
+public class BaseRes {
 	protected int status;
 	protected String message;
 	protected long timestamp;
 	
-	public CommonRes(int status, String message) {
+	public BaseRes(int status, String message) {
 		this.status = status;
 		this.message = message;
 		this.timestamp = System.currentTimeMillis();
 	}
-	public CommonRes() {
+	public BaseRes() {
 		this.timestamp = System.currentTimeMillis();
 	}
 }

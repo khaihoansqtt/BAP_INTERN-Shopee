@@ -22,14 +22,17 @@ import com.bap.intern.shopee.dto.product.PostAndPatchProductRes;
 import com.bap.intern.shopee.dto.product.PostProductReq;
 import com.bap.intern.shopee.entity.Category;
 import com.bap.intern.shopee.entity.Product;
-import com.bap.intern.shopee.exception.customException.CategoryException;
-import com.bap.intern.shopee.exception.customException.ProductException;
+import com.bap.intern.shopee.exception.customException.CategoryNotExistedException;
+import com.bap.intern.shopee.exception.customException.ProductNotExistedException;
 import com.bap.intern.shopee.exception.customException.ServerException;
 import com.bap.intern.shopee.repository.CategoryRepository;
 import com.bap.intern.shopee.repository.ProductRepository;
 
+import lombok.extern.slf4j.Slf4j;
+
 
 @Service
+@Slf4j
 public class ProductService {
 
 	@Autowired
@@ -47,9 +50,10 @@ public class ProductService {
 			newProduct.setCategory(categoryOptional.get());
 
 			productRepository.save(newProduct);
+			log.info("Add product successfully");
 			return new PostAndPatchProductRes(newProduct, HttpStatus.CREATED.value());
 		} else {
-			throw new CategoryException("category is not existed");
+			throw new CategoryNotExistedException();
 		}
 	}
 
@@ -65,12 +69,13 @@ public class ProductService {
 				if (req.getPrice() != null) product.setPrice(req.getPrice());
 
 				productRepository.save(product);
+				log.info("update product successfully");
 				return new PostAndPatchProductRes(product, HttpStatus.OK.value());
 			} else {
-				throw new CategoryException("category is not valid");
+				throw new CategoryNotExistedException();
 			}
 		} else {
-			throw new ProductException("product is not existed in the system");
+			throw new ProductNotExistedException();
 		}
 	}
 
@@ -79,8 +84,9 @@ public class ProductService {
 
 		if (productOptional.isPresent()) {
 			productRepository.delete(productOptional.get());
+			log.info("delete product successfully, id = " + productId);
 		} else {
-			throw new ProductException("product is not existed in the system");
+			throw new ProductNotExistedException();
 		}
 	}
 
@@ -96,11 +102,12 @@ public class ProductService {
 	        workbook.close();
 	        inputStream.close();
 		} catch (IOException e) {
-			throw new ServerException("Error From Server, please try again");
+			throw new ServerException();
 		}
 	}
 	
 	public void productSheetToDb(Sheet sheet) {
+		log.info("begin import products from file");
         ExecutorService executor = Executors.newFixedThreadPool(30);
         // Lưu lần lượt các category vào map để khỏi truy vấn db nhiều lần trong vòng lặp
         Map<Integer, Category> categories = new HashMap<>();
@@ -125,9 +132,5 @@ public class ProductService {
         	});
         }
         executor.shutdown();
-        // Chờ tất cả các thread thực thi xong
-        while (!executor.isTerminated()) {
-
-        }
 	}
 }

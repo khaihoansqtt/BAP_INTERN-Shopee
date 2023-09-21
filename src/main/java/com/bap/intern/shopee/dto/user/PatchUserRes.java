@@ -1,6 +1,6 @@
 package com.bap.intern.shopee.dto.user;
 
-import com.bap.intern.shopee.dto.CommonRes;
+import com.bap.intern.shopee.dto.BaseRes;
 import com.bap.intern.shopee.entity.User;
 
 import lombok.Getter;
@@ -10,7 +10,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class PatchUserRes extends CommonRes {
+public class PatchUserRes extends BaseRes {
 	
 	private UserRes user;
 	

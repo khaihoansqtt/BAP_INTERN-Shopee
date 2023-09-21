@@ -1,6 +1,6 @@
 package com.bap.intern.shopee.dto.product;
 
-import com.bap.intern.shopee.dto.CommonRes;
+import com.bap.intern.shopee.dto.BaseRes;
 import com.bap.intern.shopee.entity.Product;
 
 import lombok.Getter;
@@ -8,7 +8,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class PostAndPatchProductRes extends CommonRes {
+public class PostAndPatchProductRes extends BaseRes {
 	
 	private ProductRes productRes;
 

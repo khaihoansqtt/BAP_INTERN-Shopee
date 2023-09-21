@@ -12,7 +12,10 @@ import com.bap.intern.shopee.entity.User;
 import com.bap.intern.shopee.entity.User.Role;
 import com.bap.intern.shopee.repository.UserRepository;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class UserService {
 
 	@Autowired
@@ -27,10 +30,12 @@ public class UserService {
 																	.mapToObj(Role::of)
 																	.collect(Collectors.toSet()));
 		userRepository.save(user);
+		log.info("update user successfully");
 		return new PatchUserRes(user);
 	}
 
 	public void deleteUser(int userId) {
 		userRepository.deleteById(userId);
+		log.info("delete user successfully, id = " + userId);
 	}
 }

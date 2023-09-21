@@ -23,7 +23,10 @@ import com.bap.intern.shopee.exception.customException.ExistedEmailException;
 import com.bap.intern.shopee.repository.UserRepository;
 import com.bap.intern.shopee.util.JwtUtil;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class AuthService {
 	
 	@Autowired
@@ -53,8 +56,9 @@ public class AuthService {
 										.roles(roles)
 										.build();
 			userRepository.save(newUser);
+			log.info("Register user successfully with email: " + email);
 			return new RegisterRes(newUser);
-		} else throw new ExistedEmailException("email is existed in the system");
+		} else throw new ExistedEmailException();
 	}
 	
 	public LoginRes login(String email, String password) {
@@ -64,6 +68,7 @@ public class AuthService {
         UserDetails userDetails = userDetailsService.loadUserByUsername(email);
         String accessToken = jwtUtil.generateToken(userDetails);
         String refreshToken = jwtUtil.generateRefreshToken(userDetails);
+        log.info("Login successfully");
         
         return new LoginRes(accessToken, refreshToken);
 	}
