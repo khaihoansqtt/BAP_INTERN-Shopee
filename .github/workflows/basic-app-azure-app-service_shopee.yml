@@ -52,5 +52,5 @@ jobs:
         with:
           app-name: 'shopee'
           slot-name: 'Production'
-          package: '*.war'
+          package: '*.jar'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_680FD0EB0AED4961BEABED8DC7C940A9 }}
