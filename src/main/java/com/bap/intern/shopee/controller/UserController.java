@@ -1,6 +1,11 @@
 package com.bap.intern.shopee.controller;
 
+import com.bap.intern.shopee.entity.Category;
+import com.bap.intern.shopee.listener.TestEvent;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -17,15 +22,26 @@ import com.bap.intern.shopee.util.AuthUtil;
 
 import jakarta.validation.Valid;
 
+import java.util.stream.IntStream;
+
 @RestController
 @RequestMapping("/api/v1/user")
+@RequiredArgsConstructor
 public class UserController {
-	
-	@Autowired
-	UserService userService;
-	
-	@Autowired
-	AuthUtil authUtil;
+
+	final UserService userService;
+	final AuthUtil authUtil;
+	final ApplicationEventPublisher eventPublisher;
+
+	@GetMapping("/event")
+	public String success() {
+		System.out.println("hahaha");
+		var cate = new Category();
+		var a = new TestEvent(cate);
+		eventPublisher.publishEvent(a);
+		IntStream.range(0, 10).forEach(System.out::println);
+		return cate.getName();
+	}
 	
 	@PatchMapping()
 	public ResponseEntity<?> patchUser(@Valid @RequestBody PatchUserReq req, Authentication authentication) {
@@ -34,7 +50,8 @@ public class UserController {
 	}
 	
 	@GetMapping("/hello")
-	public String hello() {
+	public String hello(Pageable pageable) {
+		System.out.println(pageable);
 		return "hello";
 	}
 	

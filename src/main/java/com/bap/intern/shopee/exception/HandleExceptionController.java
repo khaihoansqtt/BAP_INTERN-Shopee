@@ -49,11 +49,11 @@ public class HandleExceptionController {
 	}
 	
 //	 Xử lý lỗi chung
-	@ExceptionHandler
-	public ResponseEntity<BaseRes> handleGeneralException(Exception e) {
-		BaseRes res = new BaseRes();
-		res.setStatus(HttpStatus.BAD_REQUEST.value());
-		res.setMessage(e.getMessage());
-		return new ResponseEntity<BaseRes>(res, HttpStatus.BAD_REQUEST);
-	}
+//	@ExceptionHandler
+//	public ResponseEntity<BaseRes> handleGeneralException(Exception e) {
+//		BaseRes res = new BaseRes();
+//		res.setStatus(HttpStatus.BAD_REQUEST.value());
+//		res.setMessage(e.getMessage());
+//		return new ResponseEntity<BaseRes>(res, HttpStatus.BAD_REQUEST);
+//	}
 }

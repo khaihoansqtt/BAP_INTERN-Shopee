@@ -1,31 +1,28 @@
 package com.bap.intern.shopee.service;
 
+import com.bap.intern.shopee.dto.BaseRes;
+import com.bap.intern.shopee.dto.admin.AdminSendEmailReq;
+import com.bap.intern.shopee.entity.SendEmailBatch;
+import com.bap.intern.shopee.repository.SendEmailBatchRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecutionException;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.batch.core.step.job.JobParametersExtractor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
-import com.bap.intern.shopee.dto.BaseRes;
-import com.bap.intern.shopee.dto.admin.AdminSendEmailReq;
-import com.bap.intern.shopee.entity.SendEmailBatch;
-import com.bap.intern.shopee.repository.SendEmailBatchRepository;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class AdminService {
-	
-	@Autowired
-	JobLauncher jobLauncher;
-	@Autowired
-	Job adminSendEmailToUserJob;
-	@Autowired
-	SendEmailBatchRepository sendEmailBatchRepository;
+	private JobLauncher jobLauncher;
+
+	@Qualifier("adminSendEmailToUserJob")
+	private final Job adminSendEmailToUserJob;
+	private final SendEmailBatchRepository sendEmailBatchRepository;
 
 	public BaseRes sendEmailToUser(AdminSendEmailReq req) throws JobExecutionException {
 		String subject = req.getSubject();

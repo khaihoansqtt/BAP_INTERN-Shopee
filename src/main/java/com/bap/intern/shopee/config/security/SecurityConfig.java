@@ -3,6 +3,7 @@ package com.bap.intern.shopee.config.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -23,7 +24,6 @@ public class SecurityConfig {
     private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     @Autowired
     private JwtRequestFilter jwtRequestFilter;
-    // Tạo bean passwordEncoder tiện inject mã hóa mật khẩu dùng thuật toán bcrypt
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -47,7 +47,7 @@ public class SecurityConfig {
     	http.csrf((csrf) -> csrf.disable())
     	
     		.authorizeHttpRequests((authorizeHttpRequests) -> authorizeHttpRequests
-    				.requestMatchers("/api/v1/user/hello").hasRole("ADMIN")
+//    				.requestMatchers("/api/v1/user/hello").hasRole("ADMIN")
     				.anyRequest().permitAll()
         )
     		

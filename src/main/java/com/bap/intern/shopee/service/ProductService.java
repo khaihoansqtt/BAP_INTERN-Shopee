@@ -3,6 +3,7 @@ package com.bap.intern.shopee.service;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -15,6 +16,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.bap.intern.shopee.dto.product.PatchProductReq;
@@ -133,4 +136,42 @@ public class ProductService {
         }
         executor.shutdown();
 	}
+
+	@Transactional
+	public Object testFlush(PostProductReq req) throws InterruptedException {
+		Category category = categoryRepository.findById(req.getCategoryId()).orElse(new Category());
+		Product product = Product.builder().name(req.getName()).price(req.getPrice()).category(category).build();
+		productRepository.save(product);
+//		Thread.sleep(3000);
+		return null;
+	}
+
+	@Transactional(isolation = Isolation.REPEATABLE_READ)
+	public Object testFlush2(PostProductReq req) throws InterruptedException {
+		List<Product> products = productRepository.findAllProducts();
+		log.info("--------lan 1: products: {}", products.size());
+		Thread.sleep(3000);
+		List<Product> products2 = productRepository.findAllProducts();
+		log.info("--------lan 2: products: {}", products2.size());
+		return products;
+
+	}
+
+	@Transactional
+	public Object testJpa() throws InterruptedException {
+		Product product = productRepository.findById(1).orElse(new Product());
+		product.setName("mid-step-rename");
+		productRepository.saveAndFlush(product);
+		Thread.sleep(3000);
+		return product;
+	}
+
+	@Transactional(isolation = Isolation.READ_UNCOMMITTED)
+	public Object testJpa2() {
+		List<Product> products = productRepository.findAllProducts();
+		log.info("-------2: products: {}", products);
+		return products;
+	}
+
+
 }

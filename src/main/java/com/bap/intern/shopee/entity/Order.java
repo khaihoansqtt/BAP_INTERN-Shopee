@@ -1,5 +1,6 @@
 package com.bap.intern.shopee.entity;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -21,6 +22,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.redis.core.RedisHash;
 
 @Entity
 @Table(name="orders")
@@ -29,7 +31,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class Order {
+@RedisHash("orders")
+public class Order implements Serializable {
 	
 	public enum OrderStatus {
 		UNACCEPTED,

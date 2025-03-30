@@ -6,6 +6,7 @@ import java.util.Set;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -14,6 +15,7 @@ import com.bap.intern.shopee.entity.User.Role;
 import com.bap.intern.shopee.repository.UserRepository;
 
 @SpringBootApplication
+@EnableCaching
 public class ShopeeApplication {
 
 	public static void main(String[] args) {

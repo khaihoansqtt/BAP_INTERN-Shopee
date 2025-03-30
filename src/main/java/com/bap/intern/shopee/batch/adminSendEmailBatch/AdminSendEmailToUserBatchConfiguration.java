@@ -1,15 +1,13 @@
 package com.bap.intern.shopee.batch.adminSendEmailBatch;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.sql.DataSource;
-
-import org.springframework.batch.core.BatchStatus;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobExecutionListener;
-import org.springframework.batch.core.Step;
+import com.bap.intern.shopee.entity.SendEmailBatch;
+import com.bap.intern.shopee.entity.User;
+import com.bap.intern.shopee.entity.User.Role;
+import com.bap.intern.shopee.repository.SendEmailBatchRepository;
+import jakarta.persistence.EntityManagerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.batch.core.*;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.configuration.support.DefaultBatchConfiguration;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -19,7 +17,7 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,24 +25,26 @@ import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import com.bap.intern.shopee.entity.SendEmailBatch;
-import com.bap.intern.shopee.entity.User;
-import com.bap.intern.shopee.entity.User.Role;
-import com.bap.intern.shopee.repository.SendEmailBatchRepository;
-
-import jakarta.persistence.EntityManagerFactory;
-import lombok.extern.slf4j.Slf4j;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @Configuration
+@RequiredArgsConstructor
 public class AdminSendEmailToUserBatchConfiguration extends DefaultBatchConfiguration {
-	
-	@Autowired
-	DataSource dataSource;
-	@Autowired
-	EntityManagerFactory entityManagerFactory;
-	@Autowired
-	MailSender mailSender;
+	private final EntityManagerFactory entityManagerFactory;
+    private final MailSender mailSender;
+
+    @Bean
+    public Job adminSendEmailToUserJob(JobRepository jobRepository, Step adminSendEmailStep,
+            @Qualifier("sendEmailBatchlistener") JobExecutionListener sendEmailBatchlistener) {
+        return new JobBuilder("adminSendEmailToUserJob", jobRepository)
+                .incrementer(new RunIdIncrementer())
+				.listener(sendEmailBatchlistener)
+                .flow(adminSendEmailStep)
+                .end()
+                .build();
+    }
 
     public ItemReader<User> reader() {
     	log.info("AdminSendEmailToUserBatch: reading users from db ...--------------");
@@ -69,7 +69,7 @@ public class AdminSendEmailToUserBatchConfiguration extends DefaultBatchConfigur
             for (User user : users) {
             	String emailAdress = user.getEmail();
             	log.info("Sending email to user: " + emailAdress + "---------------");
-            	
+
             	SimpleMailMessage email = new SimpleMailMessage();
                 email.setTo(emailAdress);
                 email.setSubject(subject);
@@ -87,8 +87,9 @@ public class AdminSendEmailToUserBatchConfiguration extends DefaultBatchConfigur
 				.writer(writer)
 				.build();
 	}
-	
+
 	@Bean
+    @StepScope
 	public JobExecutionListener sendEmailBatchlistener(@Value("#{jobParameters['id']}") String id,
 										SendEmailBatchRepository sendEmailBatchRepository) {
 		return new JobExecutionListener() {
@@ -96,7 +97,7 @@ public class AdminSendEmailToUserBatchConfiguration extends DefaultBatchConfigur
 			public void beforeJob(JobExecution jobExecution) {
 				log.info("Begin excecuting adminSendEmailToUserBatch");
 			}
-			
+
 			@Override
 			public void afterJob(JobExecution jobExecution) {
 				if(jobExecution.getStatus() == BatchStatus.COMPLETED) {
@@ -107,16 +108,5 @@ public class AdminSendEmailToUserBatchConfiguration extends DefaultBatchConfigur
 				}
 			}
 		};
-	}
-	
-	@Bean
-	public Job adminSendEmailToUserJob(JobRepository jobRepository, Step adminSendEmailStep,
-										JobExecutionListener sendEmailBatchlistener) {
-		return new JobBuilder("adminSendEmailToUserJob", jobRepository)
-				.incrementer(new RunIdIncrementer())
-				.listener(sendEmailBatchlistener)
-				.flow(adminSendEmailStep)
-				.end()
-				.build();
 	}
 }

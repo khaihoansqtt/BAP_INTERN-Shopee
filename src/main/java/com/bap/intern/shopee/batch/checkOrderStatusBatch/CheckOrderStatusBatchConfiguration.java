@@ -1,16 +1,12 @@
 package com.bap.intern.shopee.batch.checkOrderStatusBatch;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.sql.DataSource;
-
-import org.springframework.batch.core.BatchStatus;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobExecutionListener;
-import org.springframework.batch.core.Step;
+import com.bap.intern.shopee.entity.Order;
+import com.bap.intern.shopee.entity.Order.OrderStatus;
+import com.bap.intern.shopee.repository.OrderRepository;
+import jakarta.persistence.EntityManagerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.batch.core.*;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
@@ -19,28 +15,30 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import com.bap.intern.shopee.entity.Order;
-import com.bap.intern.shopee.entity.Order.OrderStatus;
-import com.bap.intern.shopee.repository.OrderRepository;
-
-import jakarta.persistence.EntityManagerFactory;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @Configuration
+@RequiredArgsConstructor
 public class CheckOrderStatusBatchConfiguration {
-	
-	@Autowired
-	DataSource dataSource;
-	@Autowired
-	EntityManagerFactory entityManagerFactory;
-	@Autowired
-	OrderRepository orderRepository;
+	private final EntityManagerFactory entityManagerFactory;
+	private final OrderRepository orderRepository;
+
+	@Bean
+	public Job checkOrderStatusJob(JobRepository jobRepository, Step checkStatusOrderStep) {
+		return new JobBuilder("checkOrderStatusJob", jobRepository)
+				.incrementer(new RunIdIncrementer())
+				.listener(listener())
+				.flow(checkStatusOrderStep)
+				.end()
+				.build();
+	}
 
     public ItemReader<Order> reader() {
 		Date twoDaysAgo = new Date(System.currentTimeMillis() - 2 * 24 * 60 * 60 * 1000);
@@ -98,15 +96,5 @@ public class CheckOrderStatusBatchConfiguration {
 				}
 			}
 		};
-	}
-	
-	@Bean
-	public Job checkOrderStatusJob(JobRepository jobRepository, Step checkStatusOrderStep) {
-		return new JobBuilder("checkOrderStatusJob", jobRepository)
-				.incrementer(new RunIdIncrementer())
-				.listener(listener())
-				.flow(checkStatusOrderStep)
-				.end()
-				.build();
 	}
 }
